@@ -21,13 +21,13 @@ public class Main{
       dream_sound[i] = Integer.parseInt(st.nextToken());
     }
 
-    int k = m / (n-1);
+    int k = m - n / (n-1) + 1;
     //k에 대해서 반복
     int min_dream = 3000;
     int max_dream = -1;
 
 
-    for(int i = 1; i <= k+1; i++)
+    for(int i = 1; i <= k; i++)
     {
       //dream sound로 반복
       for(int j = 0; j < m; j++)
