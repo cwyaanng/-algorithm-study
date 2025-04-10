@@ -6,35 +6,26 @@ public class Main{
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     BufferedWriter bw= new BufferedWriter(new OutputStreamWriter(System.out));
     int N = Integer.parseInt(br.readLine());
-    HashMap<String, Boolean> arr = new HashMap<>();
+    TreeMap<String, Boolean> arr = new TreeMap<>(new Comparator<String>()
+    {
+      public int compare(String s1 , String s2)
+      {
+        return s2.compareTo(s1);
+      }
+    });
+
     for(int i = 0; i < N; i++)
     {
       StringTokenizer s = new StringTokenizer(br.readLine() , " ");
       String name = s.nextToken();
       boolean e;
-      if(s.nextToken().equals("enter"))
-      {
-        e = true;
-      }else{
-        e = false;
-      }
+      if(s.nextToken().equals("enter")) e = true;
+      else e = false;
       arr.put(name, e);
     }
-
-    ArrayList<String> a = new ArrayList<>();
     for(String s : arr.keySet())
     {
-      a.add(s);
-    }
-
-    Collections.sort(a,Collections.reverseOrder());
-
-    for(String s : a)
-    {
-      if(arr.get(s) == true)
-      {
-        bw.write(s+"\n");
-      }
+      if(arr.get(s)) bw.write(s+"\n");
     }
     bw.flush();
 
