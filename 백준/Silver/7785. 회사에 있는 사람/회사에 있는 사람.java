@@ -6,14 +6,7 @@ public class Main{
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     BufferedWriter bw= new BufferedWriter(new OutputStreamWriter(System.out));
     int N = Integer.parseInt(br.readLine());
-    TreeMap<String, Boolean> arr = new TreeMap<>(new Comparator<String>()
-    {
-      public int compare(String s1 , String s2)
-      {
-        return s2.compareTo(s1);
-      }
-    });
-
+    TreeMap<String, Boolean> arr = new TreeMap<>(Collections.reverseOrder());
     for(int i = 0; i < N; i++)
     {
       StringTokenizer s = new StringTokenizer(br.readLine() , " ");
