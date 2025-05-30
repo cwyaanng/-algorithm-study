@@ -1,43 +1,31 @@
-import java.util.Scanner;
- 
-public class Main {
-	
-	static int[][] dp = new int[30][30];
- 
-	public static void main(String[] args) {
-		
-		Scanner in = new Scanner(System.in);
-		
-		int T = in.nextInt();
-		
-		StringBuilder sb = new StringBuilder();
-        
-		for(int i = 0; i < T; i++) {
-			
-			// M개중 N개를 뽑는 경우이므로 nCr 에서 n = M, r = N이다.
-			int N = in.nextInt();	// N = r
-			int M = in.nextInt();	// M = n
-						
-			sb.append(combi(M, N)).append('\n');
-		}
-		
-		System.out.println(sb);
-		
-	}
-	
-	static int combi(int n, int r) {
-		
-		// 이미 풀린 경우 바로 반환
-		if(dp[n][r] > 0) {
-			return dp[n][r]; 
-		}
-		
-		// 2번 성질
-		if(n == r || r == 0) {
-			return dp[n][r] = 1;
-		}
-		
-		// 1번 성질
-		return dp[n][r] = combi(n - 1, r - 1) + combi(n - 1, r);
-	}
+import java.util.*;
+import java.io.*;
+
+public class Main{
+  static int dp[][] = new int[30][30];
+
+  public static void main(String[] args) throws IOException{
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+    int N = Integer.parseInt(br.readLine());
+    for(int i = 0; i < N; i++)
+    {
+      StringTokenizer st = new StringTokenizer(br.readLine() , " ");
+      int s = Integer.parseInt(st.nextToken()); // 1
+      int d = Integer.parseInt(st.nextToken()); // 5
+
+      int result = combination(d,s);
+      bw.write(result+"\n");
+    }
+    bw.flush();
+
+  }
+  public static int combination(int n, int r) {
+    if(n == r || r == 0)
+      return dp[n][r] = 1;
+    else if(dp[n][r] > 0)
+      return dp[n][r];
+    else
+      return dp[n][r] = combination(n - 1, r - 1) + combination(n - 1, r);
+  }
 }
