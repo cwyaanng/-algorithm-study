@@ -2,179 +2,137 @@ import java.util.*;
 import java.io.*;
 
 public class Main{
-  public static int N,M;
-  public static int[][] map;
-  public static ArrayList<CCTV> cctvList;
-  public static int[] output;
-  public static int[][] copyMap;
-  public static int[] dx = {-1,0,1,0};
-  public static int[] dy = {0,1,0,-1};
-  public static int answer = Integer.MAX_VALUE;
 
-  public static class CCTV{
-    int num;
-    int x ;
+
+  static int[][] board;
+  static List<Cctv> visited = new ArrayList<>();
+  // 0: 상, 1: 하, 2: 좌, 3: 우
+  static int[][] dir = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+  static int min = Integer.MAX_VALUE;
+  static int[][][] cctvDir = {
+      {}, // 0번은 없음
+      {{0}, {1}, {2}, {3}},                   // 1번: 한 방향
+      {{0, 1}, {2, 3}},                       // 2번: 양 방향
+      {{0, 3}, {1, 3}, {1, 2}, {0, 2}},       // 3번: 직각
+      {{0, 2, 3}, {0, 1, 3}, {1, 2, 3}, {0, 1, 2}},
+      {{0, 1, 2, 3}}};                         // 5번: 네 방향
+
+
+  static int N;
+  static int M;
+
+  public static class Cctv{
+    int v;
+    int x;
     int y;
+    boolean b = false;
 
-    CCTV(int num, int x , int y)
-    {
-      this.num = num;
+    public Cctv(int v, int x, int y){
+      this.v = v;
       this.x = x;
       this.y = y;
     }
   }
 
   public static void main(String[] args) throws IOException{
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
-    Scanner sc = new Scanner(System.in);
-    N = sc.nextInt();
-    M = sc.nextInt();
-    map = new int[N][M];
-    cctvList = new ArrayList<>();
+    //숫자들의 위치를 기억해두기
+    StringTokenizer st = new StringTokenizer(br.readLine() , " ");
+    N = Integer.parseInt(st.nextToken());
+    M = Integer.parseInt(st.nextToken());
+    // 숫자들에 대해서 모든 조합을 해봐야 함 , visited 체크하면서 해봐야함
+    board = new int[N][M];
 
-    for(int i = 0; i < N; i++)
+    for(int i = 0; i <N; i++)
     {
+      st = new StringTokenizer(br.readLine(), " ");
       for(int j = 0; j < M; j++)
       {
-        map[i][j] = sc.nextInt();
-
-        if(map[i][j] != 0 && map[i][j] != 6)
+        board[i][j] = Integer.parseInt(st.nextToken());
+        //cctv를 cctv 배열에 저장
+        if(board[i][j] != 0 && board[i][j] != 6)
         {
-          cctvList.add(new CCTV(map[i][j] , i , j));
+          visited.add(new Cctv(board[i][j] , i , j));
         }
       }
     }
 
 
-    //cctv 탐색 순서 순열을 담을 배열
-    output = new int[cctvList.size()+1];
-    permutation(0 , cctvList.size());
+    dfs(0,board);
+    System.out.println(min);
 
-    System.out.println(answer);
   }
 
-  public static void permutation(int depth , int r){
-    if(depth == r)
-    {
-      //원래의 map array를 복사
-      copyMap = new int[N][M];
-      for(int i = 0; i < map.length; i++)
-      {
-        System.arraycopy(map[i] , 0 , copyMap[i] , 0 , map[i].length);
-      }
 
-      for(int i = 0; i < cctvList.size(); i++)
-      {
-        direction(cctvList.get(i) , output[i]);
-      }
-
-      getBlindSpot();
-
-      return;
-
-    }
-    for(int i = 0; i < 4; i++)
-    {
-      output[depth] = i;
-      permutation(depth+1,r);
-    }
-  }
-
-  // 각 cctv 번호와 순열로 뽑혀진 방향에 맞게 감시
-  public static void direction(CCTV cctv, int d) {
-    int cctvNum = cctv.num;
-
-    if(cctvNum == 1) {
-      if(d == 0) watch(cctv, 0); // 상
-      else if(d == 1) watch(cctv, 1); // 우
-      else if(d == 2) watch(cctv, 2); // 하
-      else if(d == 3) watch(cctv, 3); // 좌
-    } else if(cctvNum == 2) {
-      if(d == 0 || d == 2) {
-        watch(cctv, 0); watch(cctv, 2); // 상하
-      } else {
-        watch(cctv, 1); watch(cctv, 3); // 좌우
-      }
-    } else if(cctvNum == 3) {
-      if(d == 0) {
-        watch(cctv, 0); // 상우
-        watch(cctv, 1);
-      } else if(d == 1) {
-        watch(cctv, 1); // 우하
-        watch(cctv, 2);
-      } else if(d == 2) {
-        watch(cctv, 2); // 하좌
-        watch(cctv, 3);
-      } else if(d == 3) {
-        watch(cctv, 0); // 좌상
-        watch(cctv, 3);
-      }
-    } else if(cctvNum == 4) {
-      if(d == 0) {
-        watch(cctv, 0); // 좌상우
-        watch(cctv, 1);
-        watch(cctv, 3);
-      } else if(d == 1) {
-        watch(cctv, 0); // 상우하
-        watch(cctv, 1);
-        watch(cctv, 2);
-      } else if(d == 2) {
-        watch(cctv, 1); // 좌하우
-        watch(cctv, 2);
-        watch(cctv, 3);
-      } else if(d == 3) {
-        watch(cctv, 0); // 상좌하
-        watch(cctv, 2);
-        watch(cctv, 3);
-      }
-    } else if(cctvNum == 5) { // 상우하좌
-      watch(cctv, 0);
-      watch(cctv, 1);
-      watch(cctv, 2);
-      watch(cctv, 3);
-    }
-  }
-
-  public static void watch(CCTV cctv , int d)
+  public static void dfs(int depth, int[][] map)
   {
-    Queue<CCTV> queue = new LinkedList<>();
-    boolean[][] visited = new boolean[N][M];
+    if(depth == visited.size()){
+      int count = countBlindSpots(map);
+      min = Math.min(min,count);
+      return;
+    }
 
-    queue.add(cctv);
-    visited[cctv.x][cctv.y] = true;
+    Cctv now = visited.get(depth);
+    int type = now.v;
 
-    while(!queue.isEmpty())
+    for(int[] directions : cctvDir[type])
     {
-      int nx = queue.peek().x + dx[d];
-      int ny = queue.poll().y + dy[d];
+      //배열 복사하고
+      int[][] temp = copyMap(map);
+      //cctv 유형에 맞게 관찰
+      watch(temp,now.x,now.y,directions);
+      //재귀호출
+      dfs(depth+1,temp);
+    }
+  }
 
-      if(nx < 0||nx >= N || ny < 0 || ny >= M || copyMap[nx][ny] == 6)
+  //cctv 유형에 맞게 돌려가며 탐색
+  public static void watch(int[][] map, int x, int y, int[] directions)
+  {
+    for(int d : directions)
+    {
+      int nx = x;
+      int ny = y;
+
+      while(true)
       {
-        break;
-      }
+        nx += dir[d][0];
+        ny += dir[d][1];
 
-      if(copyMap[nx][ny] == 0)
-      {
-        copyMap[nx][ny] = -1;
-        queue.add(new CCTV(cctv.num,nx,ny));
+        if(nx < 0 || ny < 0 || nx >= N || ny >= M || map[nx][ny] == 6) break;
 
-      }else{
-        queue.add(new CCTV(cctv.num , nx,ny));
+        if (map[nx][ny] == 0) map[nx][ny] = -1; // 감시 대상인 0만 -1로
       }
     }
   }
 
-  public static void getBlindSpot() {
-    int cnt = 0;
+  //사각지대 찾기
+
+  public static int countBlindSpots(int[][] map)
+  {
+    int count = 0;
+    for(int[] row : map)
+    {
+      for(int c : row) {
+        if(c ==0) count++;
+      }
+    }
+    return count;
+  }
+
+  //지금 보드 복사
+  public static int[][] copyMap(int[][] map) {
+    int[][] newMap = new int[N][M];
     for (int i = 0; i < N; i++) {
       for (int j = 0; j < M; j++) {
-        if (copyMap[i][j] == 0) {
-          cnt++;
-        }
+        newMap[i][j] = map[i][j];
       }
     }
-    answer = Math.min(answer, cnt);
+    return newMap;
   }
 
-}
 
+
+}
